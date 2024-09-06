@@ -164,6 +164,9 @@ class HTTPAuth(object):
                     elif not self.authorize(role, user, auth):
                         status = 403
                     if not optional and status:
+                        # Clear TCP receive buffer of any pending data, fixes failed to fetch on large data uploads
+                        while request.stream.read(64 * 1024):
+                            pass
                         try:
                             return self.auth_error_callback(status)
                         except TypeError:
